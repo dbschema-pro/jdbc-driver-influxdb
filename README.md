@@ -1,6 +1,6 @@
 # Influx JDBC Driver
 
-This driver is provided by [Wise Coders GmbH](https://wisecoders.com) for integrating [DbSchema Database Designer](https://dbschema.com)
+This driver is provided by [Wise Coders GmbH](https://wisecoders.com) for integrating [DbSchema Database Designer](https://dbschema.com/jdbc-driver/influxdb.html)
 with InfluxDB.
 The driver can connect to InfluxDB, load the Influx structure using methods from the DatabaseMetaData, run Flux queries and get the result as an SQL ResultSet.
 
