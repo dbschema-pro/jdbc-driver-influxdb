@@ -69,8 +69,19 @@ class InfluxResultSet(private val fluxTables: List<FluxTable>) : AbstractResultS
     }
 
     @Throws(SQLException::class)
-    override fun getString(columnIndex: Int): String {
-        return "" + fluxRecord!!.values[resultSetMetaData.getColumnName(columnIndex)]
+    override fun getString(columnIndex: Int): String? {
+        return fluxRecord!!.values[resultSetMetaData.getColumnName(columnIndex)]?.toString()
+    }
+
+    @Throws(SQLException::class)
+    override fun getString(columnLabel: String?): String? {
+        return fluxRecord!!.values[columnLabel]?.toString()
+    }
+
+    @Throws(SQLException::class)
+    override fun getDouble(columnLabel: String?): Double {
+        val value: Any? = fluxRecord!!.values[columnLabel]
+        return if (value is Number) value.toDouble() else -1.0
     }
 
     @Throws(SQLException::class)
