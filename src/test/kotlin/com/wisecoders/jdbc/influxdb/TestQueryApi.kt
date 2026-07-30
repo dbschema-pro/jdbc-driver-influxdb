@@ -22,7 +22,7 @@ class TestQueryApi {
     init {
         // Read InfluxDb.md how to setup
         prop.setProperty(URL, "http://localhost:8086")
-        prop.setProperty(TOKEN, InfluxTokenHolder.INFLUX_TOKEN)
+        prop.setProperty(TOKEN, InfluxTokenHolder.INFLUX_TOKEN.orEmpty())
         prop.setProperty(ORG, "dbschema" )
         prop.setProperty(BUCKET, "sample" )
     }

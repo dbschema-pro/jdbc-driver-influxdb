@@ -39,7 +39,7 @@ class JdbcDriver : Driver {
             val (key, value) = pair.split("=", limit = 2).takeIf { it.size == 2 } ?: return@forEach
             if (!parameters.containsKey(key)) {
                 parameters[key] = URLDecoder.decode(value, StandardCharsets.UTF_8)
-                LOGGER.atInfo().setMessage(("Param $key=${parameters[key]}")).log()
+                LOGGER.atDebug().setMessage("Param $key=${maskParamForLog(key, parameters[key] as String?)}").log()
             }
         }
 
@@ -49,7 +49,9 @@ class JdbcDriver : Driver {
         val org = parameters["org"] as String?
         val startDaysStr = parameters[DAYS] as String?
 
-        LOGGER.atInfo().setMessage(("Connection URL=$url user=$userName password=$password org=$org token=$token days=$startDaysStr")).log()
+        LOGGER.atInfo().setMessage(
+            "Connection URL=${maskUrlForLog(url)} user=$userName org=$org days=$startDaysStr",
+        ).log()
 
         val startDays = startDaysStr?.toIntOrNull()?.let { if (it > 0) -it else it } ?: -30
         LOGGER.atInfo().setMessage(("Use days=$startDays")).log()
@@ -66,10 +68,10 @@ class JdbcDriver : Driver {
 
 
     /**
-     * URLs accepted are of the form: jdbc:mongodb[+srv]://<server>[:27017]/<db-name>
+     * URLs accepted are HTTP(S) InfluxDB endpoints, e.g. http://host:8086?org=myorg&token=...
      *
      * @see java.sql.Driver.acceptsURL
-    </db-name></server> */
+     */
     @Throws(SQLException::class)
     override fun acceptsURL(url: String): Boolean {
         return url.startsWith("http")
@@ -114,11 +116,25 @@ class JdbcDriver : Driver {
 
     companion object {
         private val LOGGER: org.slf4j.Logger = slf4jLogger()
+        private val SENSITIVE_PARAM = Regex("(?i)(password|token|secretaccesskey)=([^&]*)")
 
         init {
             DriverManager.registerDriver(JdbcDriver())
         }
 
         const val DAYS: String = "days"
+
+        private fun maskParamForLog(key: String, value: String?): String {
+            if (value == null) return "null"
+            return when (key.lowercase()) {
+                "password", "token", "secretaccesskey" -> "*".repeat(value.length)
+                else -> value
+            }
+        }
+
+        private fun maskUrlForLog(url: String): String =
+            SENSITIVE_PARAM.replace(url) { match ->
+                match.groupValues[1] + "=" + "*".repeat(match.groupValues[2].length)
+            }
     }
 }

@@ -15,4 +15,6 @@ dependencies {
     implementation(libs.influxdb.clientJava)
 
      runtimeOnly(libs.logback.classic)
+
+    testImplementation(libs.mockito.core)
 }

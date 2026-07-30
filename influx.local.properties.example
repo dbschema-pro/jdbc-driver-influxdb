@@ -1,0 +1,2 @@
+# Copy to influx.local.properties and set your InfluxDB API token (file is gitignored).
+influxToken=your-token-here

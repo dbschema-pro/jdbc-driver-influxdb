@@ -18,14 +18,24 @@ class InfluxConnection(
     val startDays: Int
 ) : AbstractConnection() {
 
+    private var closed = false
+
     @Throws(SQLException::class)
     override fun createStatement(): Statement {
+        checkOpen()
         return InfluxPreparedStatement(this, "")
     }
 
     @Throws(SQLException::class)
     override fun prepareStatement(sql: String): PreparedStatement {
+        checkOpen()
         return InfluxPreparedStatement(this, sql)
+    }
+
+    private fun checkOpen() {
+        if (closed) {
+            throw SQLException("Connection is closed.")
+        }
     }
 
     @Throws(SQLException::class)
@@ -43,11 +53,15 @@ class InfluxConnection(
 
     @Throws(SQLException::class)
     override fun close() {
+        if (!closed) {
+            closed = true
+            client.close()
+        }
     }
 
     @Throws(SQLException::class)
     override fun isClosed(): Boolean {
-        return false
+        return closed
     }
 
     @Throws(SQLException::class)

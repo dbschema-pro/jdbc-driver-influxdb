@@ -20,8 +20,10 @@ class TestJDBCDriver {
     fun setUp() {
         Class.forName("com.wisecoders.jdbc.influxdb.JdbcDriver")
 
+        val token = InfluxTokenHolder.INFLUX_TOKEN
+            ?: throw IllegalStateException("Set INFLUX_TOKEN, influx.token, influxToken in gradle.properties, or influx.local.properties")
         val url = "http://localhost:8086?" + "token=" + URLEncoder.encode(
-            InfluxTokenHolder.INFLUX_TOKEN,
+            token,
             StandardCharsets.UTF_8
         ) + "&org=" + "dbschema"
         con = DriverManager.getConnection(url, null, null)

@@ -19,6 +19,7 @@ influxdb-clientJava = { module = "com.influxdb:influxdb-client-java", version = 
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.13.3" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version = "1.13.3" }
 assertj-core = { module = "org.assertj:assertj-core", version = "3.27.3" }
+mockito-core = { module = "org.mockito:mockito-core", version = "5.20.0" }
 
 
 [plugins]

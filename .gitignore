@@ -13,3 +13,6 @@ build/
 # garbage that MacOS insists in putting in every directory
 .DS_Store
 
+# Local InfluxDB test credentials
+influx.local.properties
+

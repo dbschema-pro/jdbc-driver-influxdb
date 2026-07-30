@@ -3,6 +3,7 @@ package com.wisecoders.jdbc.influxdb
 import com.influxdb.client.QueryApi
 import com.wisecoders.common_jdbc.jvm.result_set.ArrayResultSet
 import com.wisecoders.common_jdbc.jvm.sql.AbstractDatabaseMetaData
+import com.wisecoders.common_lib.common_slf4j.slf4jLogger
 import java.sql.ResultSet
 import java.sql.SQLException
 
@@ -13,6 +14,36 @@ import java.sql.SQLException
  * Code modifications allowed only to [GitHub repository](https://github.com/wise-coders/influxdb-jdbc-driver)
  */
 class InfluxMetaData(private val influxConnection: InfluxConnection) : AbstractDatabaseMetaData() {
+
+    private val serverVersion: String by lazy {
+        try {
+            influxConnection.client.version() ?: UNKNOWN_VERSION
+        } catch (ex: Exception) {
+            LOGGER.atWarn().setMessage("Cannot read the InfluxDB server version.").setCause(ex).log()
+            UNKNOWN_VERSION
+        }
+    }
+
+    override fun getDatabaseProductName(): String = "InfluxDB"
+
+    override fun getDatabaseProductVersion(): String = serverVersion
+
+    override fun getDatabaseMajorVersion(): Int = versionPart(0)
+
+    override fun getDatabaseMinorVersion(): Int = versionPart(1)
+
+    override fun getDriverName(): String = "InfluxDB JDBC Driver"
+
+    override fun getDriverVersion(): String = "$DRIVER_MAJOR_VERSION.$DRIVER_MINOR_VERSION"
+
+    override fun getDriverMajorVersion(): Int = DRIVER_MAJOR_VERSION
+
+    override fun getDriverMinorVersion(): Int = DRIVER_MINOR_VERSION
+
+    private fun versionPart(index: Int): Int {
+        val part: String? = serverVersion.split(".").getOrNull(index)
+        return part?.takeWhile { it.isDigit() }?.toIntOrNull() ?: 0
+    }
 
     override fun getSchemas(): ResultSet {
         val result = ArrayResultSet()
@@ -259,6 +290,12 @@ schema.measurementTagKeys(bucket: "$schema", measurement: "$table" )"""
 
 
     companion object {
+        private val LOGGER: org.slf4j.Logger = slf4jLogger()
+
+        private const val UNKNOWN_VERSION = "unknown"
+        private const val DRIVER_MAJOR_VERSION = 1
+        private const val DRIVER_MINOR_VERSION = 0
+
         fun getColumnDataType(
             queryApi: QueryApi,
             schemaName: String?,
